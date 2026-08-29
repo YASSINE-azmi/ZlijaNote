@@ -1,0 +1,172 @@
+:root {
+    color: #172033;
+    background: #f4f6fb;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="dark"] {
+    color: #f3f6ff;
+    background: #10131d;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    min-width: 320px;
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    background: #f4f6fb;
+}
+
+:root[data-theme="dark"] body {
+    background: #10131d;
+}
+
+button {
+    font: inherit;
+}
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: min(100%, 70rem);
+    margin: 0 auto;
+}
+
+.brand {
+    color: inherit;
+    font-size: 1.1rem;
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+}
+
+.theme-toggle {
+    border: 1px solid #c9d1e2;
+    border-radius: 0.65rem;
+    padding: 0.55rem 0.8rem;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+}
+
+.theme-toggle:hover {
+    background: #e8ebf3;
+}
+
+:root[data-theme="dark"] .theme-toggle {
+    border-color: #3a4358;
+}
+
+:root[data-theme="dark"] .theme-toggle:hover {
+    background: #202638;
+}
+
+.welcome-panel {
+    width: min(100%, 44rem);
+    margin: auto;
+    padding: 2.5rem;
+    border: 1px solid #dce1ec;
+    border-radius: 1.25rem;
+    background: #ffffff;
+    box-shadow: 0 1rem 3rem rgb(28 39 73 / 8%);
+}
+
+:root[data-theme="dark"] .welcome-panel {
+    border-color: #2b3448;
+    background: #181d2b;
+    box-shadow: none;
+}
+
+.eyebrow {
+    margin: 0 0 1rem;
+    color: #53617e;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+:root[data-theme="dark"] .eyebrow {
+    color: #aab6d3;
+}
+
+h1 {
+    max-width: 32rem;
+    margin: 0;
+    font-size: clamp(2.25rem, 7vw, 4.5rem);
+    letter-spacing: -0.06em;
+    line-height: 0.95;
+}
+
+.welcome-copy {
+    max-width: 36rem;
+    margin: 1.5rem 0;
+    color: #53617e;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+:root[data-theme="dark"] .welcome-copy {
+    color: #b9c3d9;
+}
+
+.placeholder-action {
+    border: 0;
+    border-radius: 0.65rem;
+    padding: 0.75rem 1rem;
+    color: #65708a;
+    cursor: not-allowed;
+    background: #e8ebf3;
+}
+
+:root[data-theme="dark"] .placeholder-action {
+    color: #aab6d3;
+    background: #252d40;
+}
+
+.status-message {
+    margin: 1.5rem 0 0;
+    color: #74809a;
+    font-size: 0.9rem;
+}
+
+:root[data-theme="dark"] .status-message {
+    color: #9ca8c2;
+}
+
+@media (max-width: 40rem) {
+    .app-shell {
+        padding: 0.85rem;
+    }
+
+    .welcome-panel {
+        padding: 1.5rem;
+        border-radius: 1rem;
+    }
+}

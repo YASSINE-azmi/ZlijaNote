@@ -1,0 +1,57 @@
+/target
+/My_dc
+/assets
+
+# ==================================
+# ZlijaNote Desktop: Node / Vite
+# ==================================
+
+# Installed JavaScript dependencies
+frontend/node_modules/
+
+# Generated production web assets
+frontend/dist/
+
+# Vite local files and logs
+frontend/.vite/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# ==================================
+# ZlijaNote Desktop: Rust / Tauri
+# ==================================
+
+# Rust compilation output
+frontend/src-tauri/target/
+
+# Tauri build artifacts
+frontend/src-tauri/gen/
+
+# ==================================
+# Local configuration and secrets
+# ==================================
+
+# Keep examples such as .env.example trackable,
+# but never commit actual local environment files.
+.env
+.env.*
+!.env.example
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# ==================================
+# Editor and operating-system files
+# ==================================
+
+# Neovim swap and backup files
+*.swp
+*.swo
+*~
+
+# Desktop environment metadata
+.DS_Store
+Thumbs.db
