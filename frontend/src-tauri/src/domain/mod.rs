@@ -1,2 +1,2 @@
 mod project;
-mod workspace;
+pub mod workspace;
