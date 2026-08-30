@@ -1,3 +1,6 @@
+//! This module contains the domain entities related to projects.
+//! The main entities are [`Project`] and [`ProjectMetadata`].
+//! This module also provides utility functions for validating project names.
 use crate::error::AppError;
 
 use std::path::PathBuf;
