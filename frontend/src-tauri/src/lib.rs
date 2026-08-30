@@ -1,3 +1,5 @@
+mod application;
+mod commands;
 mod domain;
 mod error;
 mod infrastructure;

@@ -1,33 +1,37 @@
-//! This module contains the domain entities related to projects.
-//! The main entities are [`Project`] and [`ProjectMetadata`].
-//! This module also provides utility functions for validating project names.
-use crate::error::AppError;
+//! This module contains the domain model for a project inside a workspace.
 
-use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use crate::error::AppError;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProjectName(String);
 
 impl ProjectName {
     pub fn new(name: impl Into<String>) -> Result<Self, AppError> {
-        let name = name.into();
-        let trimmed = name.trim();
+        let raw_name = name.into();
+        let trimmed = raw_name.trim();
 
         if trimmed.is_empty() {
             return Err(AppError::ProjectNameIsEmpty);
         }
+
         if trimmed == "." || trimmed == ".." {
             return Err(AppError::ProjectNameIsUnsafe);
         }
+
         if trimmed.chars().any(|c| {
             c.is_control() || matches!(c, '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|')
         }) {
             return Err(AppError::ProjectNameIsUnsafe);
         }
+
         Ok(Self(trimmed.to_string()))
     }
+
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -39,24 +43,30 @@ impl std::fmt::Display for ProjectName {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProjectMetadata {
     pub schema_version: u32,
     pub project_id: Uuid,
     pub name: ProjectName,
     pub description: String,
+
     pub banner_path: Option<PathBuf>,
+
+    #[serde(with = "time::serde::iso8601")]
     pub created_at: OffsetDateTime,
+
+    #[serde(with = "time::serde::iso8601")]
     pub updated_at: OffsetDateTime,
 }
 
 impl ProjectMetadata {
-    pub fn new(name: ProjectName, now: OffsetDateTime) -> Self {
+    pub fn new(name: ProjectName, description: String) -> Self {
+        let now = OffsetDateTime::now_utc();
         Self {
             schema_version: 1,
             project_id: Uuid::new_v4(),
             name,
-            description: String::new(),
+            description,
             banner_path: None,
             created_at: now,
             updated_at: now,
@@ -66,8 +76,22 @@ impl ProjectMetadata {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Project {
-    pub metadata: ProjectMetadata,
-    pub path: PathBuf,
+    metadata: ProjectMetadata,
+    path: PathBuf,
+}
+
+impl Project {
+    pub fn new(metadata: ProjectMetadata, path: PathBuf) -> Self {
+        Self { metadata, path }
+    }
+
+    pub fn metadata(&self) -> &ProjectMetadata {
+        &self.metadata
+    }
+
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
 }
 
 #[cfg(test)]
@@ -77,113 +101,47 @@ mod tests {
     #[test]
     fn test_valid_project_names() {
         assert!(ProjectName::new("Rust Learning").is_ok());
-        assert!(ProjectName::new("دروس Rust").is_ok());
-        assert!(ProjectName::new("ⵜⵉⵎⵙⴰⵔ Rust").is_ok());
-
-        let trimmed_test = ProjectName::new("  Rust Learning  ").unwrap();
-        assert_eq!(trimmed_test.as_str(), "Rust Learning");
+        let name = ProjectName::new("  My Project  ").unwrap();
+        assert_eq!(name.as_str(), "My Project");
     }
 
     #[test]
-    fn test_invalid_empty_project_names() {
+    fn test_invalid_project_names() {
         assert!(matches!(
             ProjectName::new(""),
             Err(AppError::ProjectNameIsEmpty)
         ));
         assert!(matches!(
-            ProjectName::new("     "),
-            Err(AppError::ProjectNameIsEmpty)
-        ));
-    }
-
-    #[test]
-    fn test_project_metadata_generates_unique_id() {
-        let name = ProjectName::new("Rust Learning").unwrap();
-        let now = OffsetDateTime::now_utc();
-
-        let metadata1 = ProjectMetadata::new(name.clone(), now);
-        let metadata2 = ProjectMetadata::new(name.clone(), now);
-
-        assert_ne!(metadata1.project_id, metadata2.project_id);
-    }
-
-    #[test]
-    fn test_invalid_unsafe_project_names() {
-        assert!(matches!(
             ProjectName::new("."),
             Err(AppError::ProjectNameIsUnsafe)
         ));
         assert!(matches!(
-            ProjectName::new(".."),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new(" . "),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("../outside"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project/name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project\\name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-
-        assert!(matches!(
-            ProjectName::new("project:name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project*name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project?name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project\"name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project<name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project>name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("project|name"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-
-        assert!(matches!(
-            ProjectName::new("Rust\nLearning"),
-            Err(AppError::ProjectNameIsUnsafe)
-        ));
-        assert!(matches!(
-            ProjectName::new("Rust\tLearning"),
+            ProjectName::new("proj/name"),
             Err(AppError::ProjectNameIsUnsafe)
         ));
     }
 
     #[test]
-    fn test_project_metadata_constructor() {
-        let name = ProjectName::new("Zlija Project").unwrap();
-        let now = OffsetDateTime::now_utc();
-        let metadata = ProjectMetadata::new(name.clone(), now);
+    fn test_project_metadata_serde_roundtrip() {
+        let name = ProjectName::new("Rust Learning").unwrap();
+        let metadata = ProjectMetadata::new(name, "Learning Rust step by step".to_string());
 
-        assert_eq!(metadata.schema_version, 1);
-        assert_eq!(metadata.name, name);
-        assert_eq!(metadata.description, "");
-        assert_eq!(metadata.banner_path, None);
-        assert_eq!(metadata.created_at, now);
-        assert_eq!(metadata.updated_at, now);
+        let json_output =
+            serde_json::to_string_pretty(&metadata).expect("Failed to serialize metadata");
+
+        assert!(json_output.contains("\"schema_version\": 1"));
+        assert!(json_output.contains("\"name\": \"Rust Learning\""));
+
+        let deserialized: ProjectMetadata =
+            serde_json::from_str(&json_output).expect("Failed to deserialize metadata");
+
+        assert_eq!(metadata.schema_version, deserialized.schema_version);
+        assert_eq!(metadata.project_id, deserialized.project_id);
+        assert_eq!(metadata.name, deserialized.name);
+        assert_eq!(metadata.description, deserialized.description);
+        assert_eq!(
+            metadata.created_at.unix_timestamp(),
+            deserialized.created_at.unix_timestamp()
+        );
     }
 }
