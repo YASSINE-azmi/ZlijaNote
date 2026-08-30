@@ -1,3 +1,6 @@
+mod domain;
+mod error;
+
 fn backend_status_message() -> String {
     "Rust backend connected successfully.".to_owned()
 }
