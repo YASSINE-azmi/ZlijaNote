@@ -60,8 +60,7 @@ pub struct ProjectMetadata {
 }
 
 impl ProjectMetadata {
-    pub fn new(name: ProjectName, description: String) -> Self {
-        let now = OffsetDateTime::now_utc();
+    pub fn new(name: ProjectName, description: String, now: OffsetDateTime) -> Self {
         Self {
             schema_version: 1,
             project_id: Uuid::new_v4(),
@@ -122,9 +121,11 @@ mod tests {
     }
 
     #[test]
+    #[test]
     fn test_project_metadata_serde_roundtrip() {
         let name = ProjectName::new("Rust Learning").unwrap();
-        let metadata = ProjectMetadata::new(name, "Learning Rust step by step".to_string());
+        let now = time::OffsetDateTime::now_utc();
+        let metadata = ProjectMetadata::new(name, "Learning Rust step by step".to_string(), now);
 
         let json_output =
             serde_json::to_string_pretty(&metadata).expect("Failed to serialize metadata");

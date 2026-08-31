@@ -126,7 +126,11 @@ mod tests {
         let workspace = WorkspaceRepository::create_workspace(temp.path(), ws_name).unwrap();
 
         let proj_name = ProjectName::new("Rust Learning").unwrap();
-        let metadata = ProjectMetadata::new(proj_name.clone(), "Detailed Description".to_string());
+        let metadata = ProjectMetadata::new(
+            proj_name.clone(),
+            "Detailed Description".to_string(),
+            time::OffsetDateTime::now_utc(),
+        );
 
         let project = ProjectRepository::create_project(&workspace, metadata.clone()).unwrap();
 
@@ -154,7 +158,7 @@ mod tests {
         let p1_name = ProjectName::new("Valid Project").unwrap();
         ProjectRepository::create_project(
             &workspace,
-            ProjectMetadata::new(p1_name, "D1".to_string()),
+            ProjectMetadata::new(p1_name, "D1".to_string(), time::OffsetDateTime::now_utc()),
         )
         .unwrap();
 
@@ -205,7 +209,11 @@ mod tests {
         let workspace = WorkspaceRepository::create_workspace(temp.path(), ws_name).unwrap();
 
         let proj_name = ProjectName::new("Rust Learning").unwrap();
-        let metadata = ProjectMetadata::new(proj_name, "Description".to_string());
+        let metadata = ProjectMetadata::new(
+            proj_name,
+            "Description".to_string(),
+            time::OffsetDateTime::now_utc(),
+        );
 
         ProjectRepository::create_project(&workspace, metadata.clone()).unwrap();
 
@@ -260,7 +268,11 @@ mod tests {
         fs::create_dir(&proj_dir).unwrap();
 
         let proj_name = ProjectName::new("Future").unwrap();
-        let mut metadata = ProjectMetadata::new(proj_name, "Desc".to_string());
+        let mut metadata = ProjectMetadata::new(
+            proj_name,
+            "Desc".to_string(),
+            time::OffsetDateTime::now_utc(),
+        );
         metadata.schema_version = 999;
 
         let json = serde_json::to_string(&metadata).unwrap();
