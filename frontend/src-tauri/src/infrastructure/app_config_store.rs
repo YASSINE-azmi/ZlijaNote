@@ -10,6 +10,10 @@ pub struct AppConfigStore;
 
 impl AppConfigStore {
     pub fn load(config_dir: &Path) -> Result<AppConfig, AppError> {
+        if config_dir.exists() && !config_dir.is_dir() {
+            return Err(AppError::AppConfigCannotBeRead);
+        }
+
         let config_path = config_dir.join(CONFIG_FILE_NAME);
 
         if !config_path.exists() {
@@ -30,6 +34,14 @@ impl AppConfigStore {
     }
 
     pub fn save(config_dir: &Path, config: &AppConfig) -> Result<(), AppError> {
+        if config.schema_version != APP_CONFIG_SCHEMA_VERSION {
+            return Err(AppError::UnsupportedAppConfigSchema);
+        }
+
+        if config_dir.exists() && !config_dir.is_dir() {
+            return Err(AppError::AppConfigCannotBeWritten);
+        }
+
         if !config_dir.exists() {
             fs::create_dir_all(config_dir).map_err(|_| AppError::AppConfigCannotBeWritten)?;
         }
@@ -55,19 +67,26 @@ mod tests {
     fn test_load_missing_returns_default() {
         let temp = tempdir().unwrap();
         let config = AppConfigStore::load(temp.path()).unwrap();
-
         assert_eq!(config, AppConfig::default());
+    }
+
+    #[test]
+    fn test_load_fails_when_config_dir_is_a_file() {
+        let temp = tempdir().unwrap();
+        let fake_dir = temp.path().join("fake_dir.txt");
+        fs::write(&fake_dir, "I am a file").unwrap();
+
+        let res = AppConfigStore::load(&fake_dir);
+        assert!(matches!(res, Err(AppError::AppConfigCannotBeRead)));
     }
 
     #[test]
     fn test_save_and_load_success() {
         let temp = tempdir().unwrap();
-
         let mut original_config = AppConfig::default();
         original_config.set_last_opened_workspace(PathBuf::from("/test/workspace"));
 
         AppConfigStore::save(temp.path(), &original_config).unwrap();
-
         let loaded_config = AppConfigStore::load(temp.path()).unwrap();
 
         assert_eq!(original_config, loaded_config);
@@ -114,10 +133,22 @@ mod tests {
     }
 
     #[test]
+    fn test_save_unsupported_schema_version_returns_error() {
+        let temp = tempdir().unwrap();
+        let mut config = AppConfig::default();
+        config.schema_version = 999; // إصدار غير مدعوم
+
+        let res = AppConfigStore::save(temp.path(), &config);
+        assert!(matches!(res, Err(AppError::UnsupportedAppConfigSchema)));
+
+        let config_path = temp.path().join(CONFIG_FILE_NAME);
+        assert!(!config_path.exists());
+    }
+
+    #[test]
     fn test_save_fails_when_config_dir_is_a_file() {
         let temp = tempdir().unwrap();
         let fake_dir = temp.path().join("fake_dir.txt");
-
         fs::write(&fake_dir, "I am a file").unwrap();
 
         let config = AppConfig::default();
