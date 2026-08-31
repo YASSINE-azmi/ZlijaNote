@@ -58,4 +58,16 @@ pub enum AppError {
 
     #[error("JSON error: {0}")]
     JsonError(#[from] serde_json::Error),
+
+    #[error("Cannot read app configuration")]
+    AppConfigCannotBeRead,
+
+    #[error("Cannot write app configuration")]
+    AppConfigCannotBeWritten,
+
+    #[error("Invalid app configuration format")]
+    AppConfigIsInvalid,
+
+    #[error("Unsupported app configuration schema version")]
+    UnsupportedAppConfigSchema,
 }
