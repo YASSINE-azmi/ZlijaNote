@@ -121,7 +121,6 @@ mod tests {
     }
 
     #[test]
-    #[test]
     fn test_project_metadata_serde_roundtrip() {
         let name = ProjectName::new("Rust Learning").unwrap();
         let now = time::OffsetDateTime::now_utc();
