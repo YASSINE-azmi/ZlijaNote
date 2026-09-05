@@ -111,3 +111,8 @@ Licensed under either of:
 - MIT license ([LICENSE-MIT](LICENSE-MIT))
 
 at your option.
+
+## Trademark
+
+Zlija™, the Zlija logo, the Zlija name, Zlija.app™, the Zlija.app logo, the Zlija.app name, ZlijaNote™, the ZlijaNote logo, and the ZlijaNote name are trademarks of Yassine Azmi.
+See [TRADEMARKS.md](./TRADEMARKS.md) for permitted use.

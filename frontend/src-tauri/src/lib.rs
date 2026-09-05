@@ -1,29 +1,25 @@
-fn backend_status_message() -> String {
-    "Rust backend connected successfully.".to_owned()
-}
+mod application;
+mod commands;
+mod domain;
+mod error;
+mod infrastructure;
 
 #[tauri::command]
 fn get_backend_status() -> String {
-    backend_status_message()
+    "Backend is running".to_string()
 }
 
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![get_backend_status])
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_log::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![
+            get_backend_status,
+            commands::app_config_commands::load_app_config,
+            commands::workspace_commands::create_workspace,
+            commands::workspace_commands::open_workspace
+        ])
         .run(tauri::generate_context!())
-        .expect("error while running ZlijaNote");
-}
-
-#[cfg(test)]
-mod tests {
-    use super::backend_status_message;
-
-    #[test]
-    fn backend_status_message_reports_connection() {
-        assert_eq!(
-            backend_status_message(),
-            "Rust backend connected successfully."
-        );
-    }
+        .expect("error while running tauri application");
 }
