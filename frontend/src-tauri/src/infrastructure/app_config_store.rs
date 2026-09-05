@@ -135,8 +135,10 @@ mod tests {
     #[test]
     fn test_save_unsupported_schema_version_returns_error() {
         let temp = tempdir().unwrap();
-        let mut config = AppConfig::default();
-        config.schema_version = 999; // إصدار غير مدعوم
+        let config = AppConfig {
+            schema_version: 999,
+            ..AppConfig::default()
+        };
 
         let res = AppConfigStore::save(temp.path(), &config);
         assert!(matches!(res, Err(AppError::UnsupportedAppConfigSchema)));

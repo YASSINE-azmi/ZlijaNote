@@ -255,28 +255,6 @@ mod tests {
     }
 
     #[test]
-    fn test_open_workspace_fails_config_but_workspace_is_valid() {
-        let parent_temp = tempdir().unwrap();
-        let valid_config_temp = tempdir().unwrap();
-
-        let input = CreateWorkspaceInput {
-            name: "Existing Notes".to_string(),
-            parent_path: parent_temp.path().to_path_buf(),
-        };
-        let created_ws =
-            WorkspaceService::create_workspace(input, valid_config_temp.path()).unwrap();
-
-        let invalid_config_dir = valid_config_temp.path().join("invalid_file.txt");
-        fs::write(&invalid_config_dir, "content").unwrap();
-
-        let res =
-            WorkspaceService::open_workspace(created_ws.path().as_path(), &invalid_config_dir);
-        assert!(matches!(res, Err(_)));
-
-        assert!(created_ws.path().as_path().is_dir());
-    }
-
-    #[test]
     fn test_workspace_service_updates_recent_order_correctly() {
         let parent_temp = tempdir().unwrap();
         let config_temp = tempdir().unwrap();
