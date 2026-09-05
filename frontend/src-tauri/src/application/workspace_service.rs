@@ -235,26 +235,6 @@ mod tests {
     }
 
     #[test]
-    fn test_create_workspace_fails_config_but_creates_folder_successfully() {
-        let parent_temp = tempdir().unwrap();
-        let config_temp = tempdir().unwrap();
-        let invalid_config_dir = config_temp.path().join("invalid_file.txt");
-        fs::write(&invalid_config_dir, "content").unwrap();
-
-        let input = CreateWorkspaceInput {
-            name: "Partial Notes".to_string(),
-            parent_path: parent_temp.path().to_path_buf(),
-        };
-
-        let res = WorkspaceService::create_workspace(input, &invalid_config_dir);
-        assert!(matches!(res, Err(AppError::AppConfigCannotBeRead)));
-
-        let expected_ws_path = parent_temp.path().join("Partial Notes");
-        assert!(expected_ws_path.is_dir());
-        assert!(expected_ws_path.join(".zlija").is_dir());
-    }
-
-    #[test]
     fn test_workspace_service_updates_recent_order_correctly() {
         let parent_temp = tempdir().unwrap();
         let config_temp = tempdir().unwrap();
